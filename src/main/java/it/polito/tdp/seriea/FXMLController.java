@@ -1,9 +1,13 @@
 package it.polito.tdp.seriea;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.seriea.db.Adiacenza;
 import it.polito.tdp.seriea.model.Model;
+import it.polito.tdp.seriea.model.Season;
+import it.polito.tdp.seriea.model.Team;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -23,10 +27,10 @@ public class FXMLController {
     private URL location;
 
     @FXML
-    private ChoiceBox<?> boxSquadra;
+    private ChoiceBox<Team> boxSquadra;
 
     @FXML
-    private ChoiceBox<?> boxStagione;
+    private ChoiceBox<Season> boxStagione;
 
     @FXML
     private Button btnCalcolaConnessioniSquadra;
@@ -42,12 +46,36 @@ public class FXMLController {
 
     @FXML
     void doAnalizzaSquadre(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	model.creaGrafo();
+    	Integer vertici=model.getNumVertici(), archi=model.getNumArchi();
+    	if(vertici==0 || archi.equals(0)) {
+    		this.txtResult.appendText("ATTENZIONE! Qualcosa e' andato storto nella creazione del grafo.\n");
+    		return;
+    	}
+    	this.txtResult.appendText("GRAFO CREATO!\n #VERTICI: "+vertici+" e #ARCHI: "+archi+"\n");
+    	this.boxSquadra.getItems().addAll(model.getTeams());
     }
 
     @FXML
     void doCalcolaConnessioniSquadra(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	if(model.creaGrafo()==null) {
+    		this.txtResult.appendText("ATTENZIONE! Non e' stato preventivamente creato un grafo.\n");
+    		return;
+    	}
+    	Team t=this.boxSquadra.getValue();
+    	if(t==null) {
+    		this.txtResult.appendText("ATTENZIONE! Nessuna squadra selezionata!\n");
+    	}
+    	List<Adiacenza> connessi=model.calcolaConnessioni(t);
+    	if(connessi==null || connessi.size()==0) {
+    		this.txtResult.appendText("ATTENZIONE! Nessuna squadra connessa alla squadra selezionata.\n");
+    		return;
+    	}
+    	for(Adiacenza a:connessi) {
+    		this.txtResult.appendText(a.getT2()+"-->"+a.getPeso()+"\n");
+    	}
     }
 
     @FXML
