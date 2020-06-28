@@ -2,6 +2,7 @@ package it.polito.tdp.seriea;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.seriea.db.Adiacenza;
@@ -76,11 +77,22 @@ public class FXMLController {
     	for(Adiacenza a:connessi) {
     		this.txtResult.appendText(a.getT2()+"-->"+a.getPeso()+"\n");
     	}
+    	this.boxStagione.getItems().addAll(model.getSeasons());
     }
 
     @FXML
     void doSimulaTifosi(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	Season s=this.boxStagione.getValue();
+    	if(s==null) {
+    		this.txtResult.appendText("ATTENZIONE! Nessuna stagione scelta.\n");
+    		return;
+    	}
+    	Map<Team,Integer> squadraTifosi=model.simula(s);
+    	for(Team t:squadraTifosi.keySet()){
+    		this.txtResult.appendText(t+", TIFOSI:"+squadraTifosi.get(t)+", PUNTI: "+t.getPuntiClassifica()+"\n");
+    	}
+    	
     }
 
     @FXML

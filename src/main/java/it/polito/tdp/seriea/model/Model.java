@@ -18,9 +18,10 @@ public class Model {
 	private Graph<Team,DefaultWeightedEdge> graph;
 	private SerieADAO dao=new SerieADAO();
 	private Map<String,Team> idMapTeam;
-	
+	private Simulator sim;
 	public Model() {
 		this.idMapTeam=new HashMap<>();
+		this.sim=new Simulator();
 	}
 	public Graph<Team,DefaultWeightedEdge> creaGrafo() {
 		this.graph=new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
@@ -54,5 +55,14 @@ public class Model {
 		}
 		Collections.sort(a);
 		return a;
+	}
+	public List<Season> getSeasons(){
+		return dao.listSeasons();
+	}
+	public Map<Team,Integer> simula(Season s) {
+		List<Match> matches=dao.getMatchBySeason(s,this.idMapTeam);
+		sim.init(s,matches);
+		sim.run();
+		return sim.getSquadraTifosi();
 	}
 }

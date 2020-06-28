@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import it.polito.tdp.seriea.model.Match;
 import it.polito.tdp.seriea.model.Season;
 import it.polito.tdp.seriea.model.Team;
 
@@ -79,6 +80,34 @@ public class SerieADAO {
 
 			conn.close();
 			return adiacenze;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public List<Match> getMatchBySeason(Season s,Map<String,Team> idMapTeam) {
+		String sql="SELECT * " + 
+				"FROM matches " + 
+				"WHERE season=? " + 
+				"ORDER BY date";
+		List<Match> matches=new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, s.getSeason());
+			ResultSet res = st.executeQuery();
+
+			while (res.next()) {
+				Match match=new Match(res.getInt("match_id"), s, res.getString("div"),res.getDate("date").toLocalDate(),
+						idMapTeam.get(res.getString("HomeTeam")),idMapTeam.get(res.getString("AwayTeam")),
+						res.getInt("fthg"),res.getInt("ftag"),res.getString("ftr"));
+				matches.add(match);
+			}
+
+			conn.close();
+			return matches;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
